@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Trackmylocation</string>
+    <string name="TrackingSwitch">Tracking</string>
+
+    <string name="Longitude">Longitude</string>
+    <string name="LongitudeInitalText">Disabled</string>
+
+    <string name="Latitude">Latitude</string>
+    <string name="LatitudeInitalText">Disabled</string>
+
+    <string name="Velocity_Title">Velocity</string>
+    <string name="VelocityInitalText">Disabled</string>
+
+
+</resources>
