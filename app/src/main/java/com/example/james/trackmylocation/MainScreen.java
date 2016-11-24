@@ -14,6 +14,12 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -28,6 +34,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.OutputStreamWriter;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class MainScreen extends AppCompatActivity implements
         ConnectionCallbacks,
@@ -38,6 +51,8 @@ public class MainScreen extends AppCompatActivity implements
     private Switch locationswitch;
     private GPSTracker gps;
     double longitude, latitude;
+
+
 
     //Google Api Client For Location Support
     GoogleApiClient googleApiClient;
@@ -52,6 +67,11 @@ public class MainScreen extends AppCompatActivity implements
     //Map Objects
     MapFragment mapfragment;
     GoogleMap gMap;
+    //Databasecon databasecon = new Databasecon();
+
+
+    String url = "http://35.164.7.20/FirstTry.php";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +90,7 @@ public class MainScreen extends AppCompatActivity implements
         longitudetext = (TextView) findViewById(R.id.longitude);
         latitutetext = (TextView) findViewById(R.id.latitude);
         velocitytext = (TextView) findViewById(R.id.velocity);
+
 
 
     }
@@ -115,12 +136,14 @@ public class MainScreen extends AppCompatActivity implements
         if (locationobj != null){
 
             UpdateUi();
+
         }
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 locationobj = location;
-                UpdateUi(); }
+                UpdateUi();
+                }
         };
         setLocationRequest();
         startlocationupdates();
@@ -161,11 +184,48 @@ public class MainScreen extends AppCompatActivity implements
                 .position(new LatLng(locationobj.getLatitude(),locationobj.getLongitude()))
                 .title("Last Position"));
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(locationobj.getLatitude(),locationobj.getLongitude()),zoomLevel));
+        sendlocation();
+
+//        databasecon.latitude_send = (float)locationobj.getLatitude();
+//       databasecon.longitude_send = (float)locationobj.getLongitude();
+//        databasecon.execute();
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gMap = googleMap;
+    }
+
+    public void sendlocation(){
+        RequestQueue Queue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+            }
+
+        },new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                // Error handling
+                // System.out.println("Something went wrong!");
+                error.printStackTrace();
+
+            }
+        })
+        {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String> params = new HashMap<>();
+                // the POST parameters:
+                params.put("lati", String.valueOf(locationobj.getLatitude()));
+                params.put("longi", String.valueOf(locationobj.getLongitude()));
+                return params;
+            }
+        };
+        Queue.add(stringRequest);
     }
 
 }
