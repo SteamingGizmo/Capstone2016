@@ -1,8 +1,10 @@
 package com.example.james.trackmylocation;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -24,6 +26,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationListener;
@@ -34,6 +38,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
@@ -51,8 +56,13 @@ public class MainScreen extends AppCompatActivity implements
     private Switch locationswitch;
     private GPSTracker gps;
     double longitude, latitude;
-
-
+    String PROJECT_ID = "location-tracker-1478206108627";
+    String authorizedEntity = PROJECT_ID;
+    String scope = "GCM";
+    String token;
+    InstanceID id;
+    String uniqueid;
+    Activity activity;
 
     //Google Api Client For Location Support
     GoogleApiClient googleApiClient;
@@ -62,22 +72,24 @@ public class MainScreen extends AppCompatActivity implements
     LocationRequest locationRequest;
     LocationListener locationListener;
 
-    TextView longitudetext, latitutetext, velocitytext;
+    TextView longitudetext, latitutetext, velocitytext,iidtext;
 
     //Map Objects
     MapFragment mapfragment;
     GoogleMap gMap;
-    //Databasecon databasecon = new Databasecon();
+    // Databasecon databasecon = new Databasecon();
 
 
     String url = "http://35.164.7.20/FirstTry.php";
+    String reduced_id,temp_reduced_id;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_screen);
-
+        activity = this;
+        //token = InstanceID.getInstance(this).getToken(authorizedEntity, scope);
         //Generate Map Fragment
         mapfragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapfragment.getMapAsync(this);
@@ -90,6 +102,9 @@ public class MainScreen extends AppCompatActivity implements
         longitudetext = (TextView) findViewById(R.id.longitude);
         latitutetext = (TextView) findViewById(R.id.latitude);
         velocitytext = (TextView) findViewById(R.id.velocity);
+        iidtext = (TextView) findViewById(R.id.iid);
+        Asyncgetiid asyncgetiid = new Asyncgetiid();
+        asyncgetiid.execute();
 
 
 
@@ -201,7 +216,7 @@ public class MainScreen extends AppCompatActivity implements
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-
+                Log.d("ServerResponce",response);
             }
 
         },new Response.ErrorListener(){
@@ -211,7 +226,7 @@ public class MainScreen extends AppCompatActivity implements
                 // Error handling
                 // System.out.println("Something went wrong!");
                 error.printStackTrace();
-
+                Log.d("Connection Error", error.getMessage());
             }
         })
         {
@@ -222,10 +237,36 @@ public class MainScreen extends AppCompatActivity implements
                 // the POST parameters:
                 params.put("lati", String.valueOf(locationobj.getLatitude()));
                 params.put("longi", String.valueOf(locationobj.getLongitude()));
+                params.put("UniqueID",reduced_id.substring(0,64));
+                Log.d("UNIID",reduced_id.substring(0,64));
                 return params;
             }
         };
         Queue.add(stringRequest);
+    }
+    private class Asyncgetiid extends AsyncTask<String,String,String>{
+
+        String grabid;
+
+        @Override
+        protected String doInBackground(String...params){
+            id = InstanceID.getInstance(activity);
+            try {
+                grabid = id.getToken(authorizedEntity, scope);
+            } catch(IOException e) {
+                e.printStackTrace();
+                Log.e("Token",e.getMessage());
+            }
+            return grabid;
+        }
+        @Override
+        protected void onPostExecute(String iid){
+           uniqueid = iid;
+            temp_reduced_id = uniqueid.replaceAll("[^\\w\\s]","");
+            reduced_id = temp_reduced_id.replaceAll("_","");
+            iidtext.setText(iid);
+        }
+
     }
 
 }

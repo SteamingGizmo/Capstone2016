@@ -57,10 +57,16 @@
         android:layout_below="@+id/Velocity_title"
         android:text="@string/VelocityInitalText"
         />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:layout_below="@+id/velocity"
+        android:text="instanceid"
+        android:id="@+id/iid"/>
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         android:name="com.google.android.gms.maps.MapFragment"
         android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="240dp"
-        android:layout_below="@+id/velocity"/>
+        android:layout_below="@+id/iid"/>
 </RelativeLayout>
