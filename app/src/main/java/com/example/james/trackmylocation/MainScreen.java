@@ -199,6 +199,8 @@ public class MainScreen extends AppCompatActivity implements
                 .position(new LatLng(locationobj.getLatitude(),locationobj.getLongitude()))
                 .title("Last Position"));
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(locationobj.getLatitude(),locationobj.getLongitude()),zoomLevel));
+
+
         sendlocation();
 
 //        databasecon.latitude_send = (float)locationobj.getLatitude();
@@ -261,7 +263,7 @@ public class MainScreen extends AppCompatActivity implements
         }
         @Override
         protected void onPostExecute(String iid){
-           uniqueid = iid;
+            uniqueid = iid;
             temp_reduced_id = uniqueid.replaceAll("[^\\w\\s]","");
             reduced_id = temp_reduced_id.replaceAll("_","");
             iidtext.setText(iid);
@@ -269,5 +271,6 @@ public class MainScreen extends AppCompatActivity implements
 
     }
 
+    
 }
 
