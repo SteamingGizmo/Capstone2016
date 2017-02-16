@@ -12,7 +12,10 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -43,7 +46,9 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -55,6 +60,7 @@ public class MainScreen extends AppCompatActivity implements
 
     private Switch locationswitch;
     private GPSTracker gps;
+    private Spinner spinner;
     double longitude, latitude;
     String PROJECT_ID = "location-tracker-1478206108627";
     String authorizedEntity = PROJECT_ID;
@@ -72,7 +78,6 @@ public class MainScreen extends AppCompatActivity implements
     LocationRequest locationRequest;
     LocationListener locationListener;
 
-    TextView longitudetext, latitutetext, velocitytext,iidtext;
 
     //Map Objects
     MapFragment mapfragment;
@@ -94,18 +99,18 @@ public class MainScreen extends AppCompatActivity implements
         mapfragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapfragment.getMapAsync(this);
 
+        addItemsOnSpinner();
+
+
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .build();
 
-        longitudetext = (TextView) findViewById(R.id.longitude);
-        latitutetext = (TextView) findViewById(R.id.latitude);
-        velocitytext = (TextView) findViewById(R.id.velocity);
-        iidtext = (TextView) findViewById(R.id.iid);
+
+
         Asyncgetiid asyncgetiid = new Asyncgetiid();
         asyncgetiid.execute();
-
 
 
     }
@@ -120,18 +125,7 @@ public class MainScreen extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         Log.i("Test", "onResume: is running ");
-        locationswitch = (Switch) findViewById(R.id.locationswitch);
-        locationswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    googleApiClient.connect();
-                    Log.i("LocationSwitchStatus", "Switch Enabled");
-                } else {
-                    googleApiClient.disconnect();
-                }
-            }
-        });
+        googleApiClient.connect();
 
 
     }
@@ -150,14 +144,14 @@ public class MainScreen extends AppCompatActivity implements
         locationobj = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
         if (locationobj != null){
 
-            UpdateUi();
+            UpdateMap();
 
         }
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 locationobj = location;
-                UpdateUi();
+                UpdateMap();
                 }
         };
         setLocationRequest();
@@ -190,22 +184,15 @@ public class MainScreen extends AppCompatActivity implements
     public void onLocationChanged(Location location) {
 
     }
-    public void UpdateUi(){
+    public void UpdateMap(){
         float zoomLevel = 19.0f;
-        latitutetext.setText(String.valueOf(locationobj.getLatitude()));
-        longitudetext.setText(String.valueOf(locationobj.getLongitude()));
-        velocitytext.setText(String.valueOf(locationobj.getSpeed()));
+
         gMap.addMarker(new MarkerOptions()
                 .position(new LatLng(locationobj.getLatitude(),locationobj.getLongitude()))
                 .title("Last Position"));
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(locationobj.getLatitude(),locationobj.getLongitude()),zoomLevel));
-
-
         sendlocation();
 
-//        databasecon.latitude_send = (float)locationobj.getLatitude();
-//       databasecon.longitude_send = (float)locationobj.getLongitude();
-//        databasecon.execute();
     }
 
     @Override
@@ -266,11 +253,20 @@ public class MainScreen extends AppCompatActivity implements
             uniqueid = iid;
             temp_reduced_id = uniqueid.replaceAll("[^\\w\\s]","");
             reduced_id = temp_reduced_id.replaceAll("_","");
-            iidtext.setText(iid);
+
         }
 
     }
+    public void addItemsOnSpinner() {
+        spinner = (Spinner) findViewById(R.id.Spinner);
+        List<String> list = new ArrayList<String>();
+        list.add("1 LineDescription");
+        list.add("2 LineDescription");
+        list.add("3 LineDescription");
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, list);
+        spinner.setAdapter(dataAdapter);
+    }
 
-    
+
 }
 

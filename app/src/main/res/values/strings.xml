@@ -11,5 +11,8 @@
     <string name="Velocity_Title">Velocity</string>
     <string name="VelocityInitalText">Disabled</string>
 
+    <string name="search_label">Bus Route</string>
+    <string name="search_hint">Search Bus Routes</string>
+
 
 </resources>
