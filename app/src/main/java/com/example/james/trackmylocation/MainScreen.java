@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -40,6 +41,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PointOfInterest;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -56,7 +58,8 @@ public class MainScreen extends AppCompatActivity implements
         ConnectionCallbacks,
         OnConnectionFailedListener,
         LocationListener,
-        OnMapReadyCallback {
+        OnMapReadyCallback,
+        GoogleMap.OnPoiClickListener{
 
     private Switch locationswitch;
     private GPSTracker gps;
@@ -86,6 +89,7 @@ public class MainScreen extends AppCompatActivity implements
 
 
     String url = "http://35.164.7.20/FirstTry.php";
+    String bus_url = "http://35.164.7.20/BusSchedule.php";
     String reduced_id,temp_reduced_id;
 
 
@@ -198,6 +202,7 @@ public class MainScreen extends AppCompatActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gMap = googleMap;
+        gMap.setOnPoiClickListener(this);
     }
 
     public void sendlocation(){
@@ -266,7 +271,44 @@ public class MainScreen extends AppCompatActivity implements
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, list);
         spinner.setAdapter(dataAdapter);
     }
+    @Override
+    public void onPoiClick(PointOfInterest poi){
+        Toast.makeText(getApplicationContext(), "Clicked: " +
+                        poi.name + "\nPlace ID:" + poi.placeId +
+                        "\nLatitude:" + poi.latLng.latitude +
+                        " Longitude:" + poi.latLng.longitude,
+                Toast.LENGTH_SHORT).show();
+        Log.i("Poi Click", "POI Clicked");
+        FetchStaticSchedule();
+    }
 
+   public void FetchStaticSchedule() {
+       RequestQueue queue = Volley.newRequestQueue(this);
+       StringRequest stringRequest = new StringRequest(Request.Method.POST, bus_url, new Response.Listener<String>() {
+           @Override
+           public void onResponse(String response) {
+               Log.i("EchoResponce", response);
+           }
 
+       }, new Response.ErrorListener() {
+           @Override
+           public void onErrorResponse(VolleyError error) {
+
+               // Error handling
+               // System.out.println("Something went wrong!");
+               error.printStackTrace();
+               Log.i("Connection Error", error.getMessage());
+           }
+       }) {
+           @Override
+           protected Map<String, String> getParams() {
+               Map<String, String> params = new HashMap<>();
+               // the POST parameters:
+               params.put("BusStop", "TestString");
+               return params;
+           }
+       };
+       queue.add(stringRequest);
+   }
 }
 
