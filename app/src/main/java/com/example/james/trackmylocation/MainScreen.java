@@ -40,6 +40,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
 
@@ -68,6 +69,7 @@ public class MainScreen extends AppCompatActivity implements
     String PROJECT_ID = "location-tracker-1478206108627";
     String authorizedEntity = PROJECT_ID;
     String scope = "GCM";
+    String next_bus = "asdf123";
     String token;
     InstanceID id;
     String uniqueid;
@@ -85,7 +87,7 @@ public class MainScreen extends AppCompatActivity implements
     //Map Objects
     MapFragment mapfragment;
     GoogleMap gMap;
-    // Databasecon databasecon = new Databasecon();
+
 
 
     String url = "http://35.164.7.20/FirstTry.php";
@@ -203,6 +205,7 @@ public class MainScreen extends AppCompatActivity implements
     public void onMapReady(GoogleMap googleMap) {
         gMap = googleMap;
         gMap.setOnPoiClickListener(this);
+        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(49.882114,-119.477829),10.0f));
     }
 
     public void sendlocation(){
@@ -265,29 +268,44 @@ public class MainScreen extends AppCompatActivity implements
     public void addItemsOnSpinner() {
         spinner = (Spinner) findViewById(R.id.Spinner);
         List<String> list = new ArrayList<String>();
-        list.add("1 LineDescription");
-        list.add("2 LineDescription");
-        list.add("3 LineDescription");
+        list.add("97 Express");
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, list);
         spinner.setAdapter(dataAdapter);
     }
     @Override
     public void onPoiClick(PointOfInterest poi){
-        Toast.makeText(getApplicationContext(), "Clicked: " +
-                        poi.name + "\nPlace ID:" + poi.placeId +
-                        "\nLatitude:" + poi.latLng.latitude +
-                        " Longitude:" + poi.latLng.longitude,
-                Toast.LENGTH_SHORT).show();
-        Log.i("Poi Click", "POI Clicked");
-        FetchStaticSchedule();
+        // Toast.makeText(getApplicationContext(), "Clicked: " +
+       //                 poi.name + "\nPlace ID:" + poi.placeId +
+       //                 "\nLatitude:" + poi.latLng.latitude +
+       //                 " Longitude:" + poi.latLng.longitude,
+       //         Toast.LENGTH_LONG).show();
+        String id = poi.placeId;
+        Log.i("Poi Click", id);
+        FetchStaticSchedule(poi);
+
+
+
     }
 
-   public void FetchStaticSchedule() {
+   public void FetchStaticSchedule(final PointOfInterest poi) {
        RequestQueue queue = Volley.newRequestQueue(this);
+
        StringRequest stringRequest = new StringRequest(Request.Method.POST, bus_url, new Response.Listener<String>() {
            @Override
            public void onResponse(String response) {
-               Log.i("EchoResponce", response);
+
+               //next_bus = response;
+
+               Log.i("EchoResponce", next_bus);
+
+               Toast.makeText(getApplicationContext(), next_bus, Toast.LENGTH_SHORT).show();
+               Marker clicked_stop = gMap.addMarker(new MarkerOptions()
+                       .position(poi.latLng)
+                       .title(poi.name)
+                       .snippet(next_bus));
+               clicked_stop.showInfoWindow();
+
+
            }
 
        }, new Response.ErrorListener() {
@@ -304,11 +322,12 @@ public class MainScreen extends AppCompatActivity implements
            protected Map<String, String> getParams() {
                Map<String, String> params = new HashMap<>();
                // the POST parameters:
-               params.put("BusStop", "TestString");
+               params.put("BusStop", poi.placeId);
                return params;
            }
        };
        queue.add(stringRequest);
+
    }
 }
 
