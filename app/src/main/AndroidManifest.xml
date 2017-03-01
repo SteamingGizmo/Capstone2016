@@ -20,10 +20,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".transmitlocation_background_service"
+            android:exported="false"></service>
     <meta-data
         android:name="com.google.android.geo.API_KEY"
         android:value="AIzaSyCkNQWsGPor9b4zKaF_wewXdIZ6TY5hZtc"
         />
     </application>
+
 
 </manifest>
