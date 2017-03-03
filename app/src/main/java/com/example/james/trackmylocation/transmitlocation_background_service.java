@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -41,6 +42,14 @@ public class transmitlocation_background_service extends Service implements  Goo
     LocationListener locationListener;
     String url = "http://35.164.7.20/FirstTry.php";
     String iid;
+
+    private final IBinder iBinder = new LocalBinder();
+
+    public class LocalBinder extends Binder{
+        transmitlocation_background_service getService(){
+            return transmitlocation_background_service.this;
+        }
+    }
 
 
     @Override
@@ -128,6 +137,19 @@ public class transmitlocation_background_service extends Service implements  Goo
     }
     @Override
     public IBinder onBind(Intent intent){
-        return null;
+        return iBinder;
+    }
+    public Location getLocation(){
+
+        return location;
+    }
+    public boolean LocationIsNotNull(){
+
+        if (location != null){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }
