@@ -69,9 +69,10 @@ public class transmitlocation_background_service extends Service implements  Goo
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-            sendlocation();
+            //sendlocation();
             }
         };
+
         setLocationRequest();
     LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient,locationRequest,locationListener);
     }
@@ -140,7 +141,7 @@ public class transmitlocation_background_service extends Service implements  Goo
         return iBinder;
     }
     public Location getLocation(){
-
+        
         return location;
     }
     public boolean LocationIsNotNull(){

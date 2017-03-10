@@ -1,25 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main_screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.james.trackmylocation.MainScreen">
+    tools:context="com.example.james.trackmylocation.MainScreen"
+    >
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:id="@+id/Bar"
+        android:background="@android:color/holo_green_dark"
+        android:visibility="gone">
+
+    </View>
+    <Spinner
+        android:id="@+id/Spinner"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background= "#ffffff"
+        android:layout_below="@id/Bar"
+        android:dropDownSelector="@drawable/cast_ic_expanded_controller_play"
+
+        />
+    <View
+        android:layout_below = "@id/Spinner"
+        android:id="@+id/Spacer1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"></View>
+   <TableLayout
+       android:layout_width="match_parent"
+       android:layout_height="200dp"
+       android:layout_below="@id/Spacer1"
+       android:id="@+id/Table_layout">
+
+
+    <TableRow
+       android:layout_width="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        >
+
+       <TextView
+           android:layout_marginLeft="10dp"
+        android:layout_height="40dp"
+        android:layout_width="120dp"
+        android:text="Scheduled Time"
+        android:textStyle="bold"/>
+
+       <TextView
+           android:layout_marginLeft="5dp"
+           android:layout_width="120dp"
+           android:layout_height="40dp"
+           android:text="Expected Time"
+           android:textStyle="bold"/>
+       <TextView
+           android:layout_marginLeft="5dp"
+           android:layout_height="40dp"
+           android:layout_width="100dp"
+           android:text="Closest Stop"
+           android:textStyle="bold"/>
+   </TableRow>
+       <TableRow>
+           <TextView
+               android:layout_marginLeft="10dp"
+               android:layout_height="40dp"
+               android:layout_width="120dp"
+               android:text="Please Select A Route"
+               android:id="@+id/Scheduled_Time"/>
+
+           <TextView
+               android:layout_marginLeft="5dp"
+               android:layout_width="120dp"
+               android:layout_height="40dp"
+               android:text="Not Available"
+               android:id="@+id/Expected_Time"/>
+           <TextView
+               android:layout_marginLeft="5dp"
+               android:layout_height="40dp"
+               android:layout_width="100dp"
+               android:text="Please Select A Route"
+               android:id="@+id/Selected_Stop"
+               android:layout_marginRight="20dp"/>
+       </TableRow>
+</TableLayout>
+    <View
+        android:layout_below = "@id/Table_layout"
+        android:id="@+id/Spacer2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"></View>
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         android:name="com.google.android.gms.maps.MapFragment"
         android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
-
-    <Spinner
-        android:id="@+id/Spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:background= "#ffffff"
-        />
-
-
-</FrameLayout>
+        android:layout_below="@id/Spacer2"
+         />
+</RelativeLayout>
