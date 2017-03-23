@@ -105,6 +105,8 @@ public class MainScreen extends Activity implements
 
     TextView Bus_Stop;
 
+    String stoplookup[] = {"","97ExpressToWestBankStops","97ExpressToUBCOStops","8ToUBCO","8ToOkanaganCollege" };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -200,6 +202,8 @@ public class MainScreen extends Activity implements
         list.add("Please Select A Route");
         list.add("97 Express To West Kelowna");
         list.add("97 Express To UBCO");
+        list.add("8 To UBCO");
+        list.add("8 To Okanagan College");
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, list);
         spinner.setAdapter(dataAdapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -209,7 +213,8 @@ public class MainScreen extends Activity implements
 
             if(mBound) {
                 if (backgroundservice.LocationIsNotNull()) {
-                    Find_Closest_Stop();
+                    Find_Closest_Stop(position);
+                    Toast.makeText(MainScreen.this, String.valueOf(position), Toast.LENGTH_SHORT).show();
                 }
             }
             }
@@ -308,7 +313,7 @@ public class MainScreen extends Activity implements
         }
     };
 
-    public void Find_Closest_Stop() {
+    public void Find_Closest_Stop(final int stop_number) {
         RequestQueue queue = Volley.newRequestQueue(this);
 
        StringRequest stringRequest = new StringRequest(Request.Method.POST, stops_url, new Response.Listener<String>() {
@@ -396,6 +401,7 @@ public class MainScreen extends Activity implements
                 // the POST parameters:
                 params.put("lati", String.valueOf(backgroundservice.getLocation().getLatitude()));
                 params.put("longi",String.valueOf(backgroundservice.getLocation().getLongitude()));
+                params.put("stop",stoplookup[stop_number]);
                 return params;
             }
         };
