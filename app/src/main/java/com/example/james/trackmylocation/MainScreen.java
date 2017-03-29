@@ -50,6 +50,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -347,7 +349,8 @@ public class MainScreen extends Activity implements
                              LatLng Closest_Stop = new LatLng(Closest_Stop_Latitude,Closest_Stop_Longitude);
                              gMap.addMarker(new MarkerOptions()
                              .title(Stop_name)
-                             .position(Closest_Stop));
+                             .position(Closest_Stop)
+                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.busstop)));
                              gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(Closest_Stop,15.0f));
 
                         }
