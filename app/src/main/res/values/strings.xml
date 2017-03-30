@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Trackmylocation</string>
+    <string name="app_name">Where Is My Bus?</string>
     <string name="TrackingSwitch">Tracking</string>
 
     <string name="Longitude">Longitude</string>

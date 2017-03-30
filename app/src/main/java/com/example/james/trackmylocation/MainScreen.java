@@ -7,6 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 
 import android.content.ServiceConnection;
+
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 
@@ -56,12 +61,17 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.opencsv.CSVReader;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -69,6 +79,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MainScreen extends Activity implements
@@ -109,6 +121,11 @@ public class MainScreen extends Activity implements
 
     String stoplookup[] = {"","97ExpressToWestBankStops","97ExpressToUBCOStops","8ToUBCO","8ToOkanaganCollege" };
 
+    Timer timer;
+    ArrayList<LatLng> simulated_positions;
+    Marker simulated_marker;
+    Integer n = 0;
+    Boolean visible = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,8 +145,68 @@ public class MainScreen extends Activity implements
         Asyncgetiid asyncgetiid = new Asyncgetiid();
         asyncgetiid.execute();
 
+        simulated_positions = new ArrayList<LatLng>();
 
-    }
+
+
+
+        try{
+            InputStream csvStream = getAssets().open("97express.txt");
+            InputStreamReader csvStreamReader = new InputStreamReader(csvStream);
+            CSVReader csvReader = new CSVReader(csvStreamReader);
+            csvReader.readNext();
+            String[] line;
+
+
+
+            while((line = csvReader.readNext()) != null){
+                // polyline_points_lat.add(line[0]);
+                simulated_positions.add(new LatLng(Double.parseDouble(line[1]),Double.parseDouble(line[0])));
+            }
+            csvStream.close();
+
+        }catch (IOException e){
+            e.printStackTrace();
+            Log.d("IOException","IOException");
+
+        }
+
+
+         timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("Timer","TimerRun");
+                        if(gMap != null) {
+                            if (simulated_marker == null) {
+                                simulated_marker = gMap.addMarker(new MarkerOptions()
+                                        .position(simulated_positions.get(0))
+                                        .title("Position")
+                                        .visible(visible)
+                                        .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("buslocation",148,187)))
+                                );
+                            } else {
+
+                                simulated_marker.setPosition(simulated_positions.get(n));
+                                n++;
+                            }
+                            if(n == simulated_positions.size()){
+                                n = 1;
+                            }
+                        }
+                    }
+                });
+                                }
+            };
+        timer.schedule(timerTask,1000,1000);
+    };
+
+
+
+
 
     @Override
     protected void onStart() {
@@ -219,6 +296,22 @@ public class MainScreen extends Activity implements
                     Toast.makeText(MainScreen.this, String.valueOf(position), Toast.LENGTH_SHORT).show();
                 }
             }
+            if(position != 0){
+                Polyline polyline_97express = getRoutePolygon(position,true);
+            }
+            if(position == 1 || position == 2 ){
+
+                if(simulated_marker != null){
+                    simulated_marker.setVisible(true);
+                }
+
+            }else{
+                if(simulated_marker != null) {
+                    simulated_marker.setVisible(false);
+                }
+            }
+
+
             }
 
             @Override
@@ -270,7 +363,7 @@ public class MainScreen extends Activity implements
                }
                Log.i("EchoResponce", next_bus);
                 TextView Scheduled_Time = (TextView) findViewById(R.id.Scheduled_Time);
-               Scheduled_Time.setText(local_time);
+               //Scheduled_Time.setText(local_time);
                //Toast.makeText(getApplicationContext(), next_bus, Toast.LENGTH_SHORT).show();
 
 
@@ -350,7 +443,7 @@ public class MainScreen extends Activity implements
                              gMap.addMarker(new MarkerOptions()
                              .title(Stop_name)
                              .position(Closest_Stop)
-                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.busstop)));
+                             .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("busstopicon",148,187))));
                              gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(Closest_Stop,15.0f));
 
                         }
@@ -410,6 +503,45 @@ public class MainScreen extends Activity implements
         };
         queue.add(stringRequest);
 
+    }
+
+    public Bitmap resizeMapIcons(String iconName, int width, int height){
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName,"drawable",getPackageName()));
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap,width,height,false);
+        return resizedBitmap;
+    }
+
+    public Polyline getRoutePolygon(int route_id, Boolean display ){
+
+        ArrayList<LatLng> polyline_points = new ArrayList<LatLng>();
+        Polyline polyline;
+        try{
+            InputStream csvStream = getAssets().open("97express.txt");
+            InputStreamReader csvStreamReader = new InputStreamReader(csvStream);
+            CSVReader csvReader = new CSVReader(csvStreamReader);
+            csvReader.readNext();
+            String[] line;
+
+
+
+            while((line = csvReader.readNext()) != null){
+                // polyline_points_lat.add(line[0]);
+                polyline_points.add(new LatLng(Double.parseDouble(line[1]),Double.parseDouble(line[0])));
+            }
+            csvStream.close();
+            polyline = gMap.addPolyline(new PolylineOptions()
+                    .addAll(polyline_points)
+                    .width(8)
+                    .color(Color.CYAN)
+                    .visible(display));
+            return(polyline);
+
+
+        }catch (IOException e){
+            e.printStackTrace();
+            Log.d("IOException","IOException");
+            return(null);
+        }
     }
 
 }
