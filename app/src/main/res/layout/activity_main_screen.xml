@@ -76,7 +76,7 @@
                android:layout_marginLeft="5dp"
                android:layout_width="120dp"
                android:layout_height="40dp"
-               android:text="3:20"
+               android:text="N/A"
                android:id="@+id/Expected_Time"/>
            <TextView
                android:layout_marginLeft="5dp"

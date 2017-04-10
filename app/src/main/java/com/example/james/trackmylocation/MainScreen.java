@@ -122,10 +122,14 @@ public class MainScreen extends Activity implements
     String stoplookup[] = {"","97ExpressToWestBankStops","97ExpressToUBCOStops","8ToUBCO","8ToOkanaganCollege" };
 
     Timer timer;
-    ArrayList<LatLng> simulated_positions;
-    Marker simulated_marker;
-    Integer n = 0;
+    ArrayList<LatLng> simulated_positions_97express;
+    ArrayList<LatLng> simulated_positions_8;
+    Marker simulated_marker_97express_toUBCO, simulated_marker_97express_fromUBCO;
+    Marker simulated_marker_8_toUBCO, simulated_marker_8_fromUBCO;
+    Integer n = 0, m = 0;
     Boolean visible = false;
+    Polyline express_97;
+    Polyline university_8;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -145,8 +149,8 @@ public class MainScreen extends Activity implements
         Asyncgetiid asyncgetiid = new Asyncgetiid();
         asyncgetiid.execute();
 
-        simulated_positions = new ArrayList<LatLng>();
-
+        simulated_positions_97express = new ArrayList<LatLng>();
+        simulated_positions_8 = new ArrayList<LatLng>();
 
 
 
@@ -161,7 +165,7 @@ public class MainScreen extends Activity implements
 
             while((line = csvReader.readNext()) != null){
                 // polyline_points_lat.add(line[0]);
-                simulated_positions.add(new LatLng(Double.parseDouble(line[1]),Double.parseDouble(line[0])));
+                simulated_positions_97express.add(new LatLng(Double.parseDouble(line[1]),Double.parseDouble(line[0])));
             }
             csvStream.close();
 
@@ -169,6 +173,22 @@ public class MainScreen extends Activity implements
             e.printStackTrace();
             Log.d("IOException","IOException");
 
+        }
+
+        try{
+            InputStream csvStream = getAssets().open("8University.txt");
+            InputStreamReader csvStreamReader = new InputStreamReader(csvStream);
+            CSVReader csvReader = new CSVReader(csvStreamReader);
+            csvReader.readNext();
+            String[] line;
+            while((line = csvReader.readNext()) != null){
+                // polyline_points_lat.add(line[0]);
+                simulated_positions_8.add(new LatLng(Double.parseDouble(line[1]),Double.parseDouble(line[0])));
+            }
+            csvStream.close();
+
+        }catch (IOException e){
+            e.printStackTrace();
         }
 
 
@@ -181,20 +201,46 @@ public class MainScreen extends Activity implements
                     public void run() {
                         Log.d("Timer","TimerRun");
                         if(gMap != null) {
-                            if (simulated_marker == null) {
-                                simulated_marker = gMap.addMarker(new MarkerOptions()
-                                        .position(simulated_positions.get(0))
+                            if (simulated_marker_97express_toUBCO == null) {
+                                simulated_marker_97express_toUBCO = gMap.addMarker(new MarkerOptions()
+                                        .position(simulated_positions_97express.get(0))
                                         .title("Position")
                                         .visible(visible)
                                         .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("buslocation",148,187)))
                                 );
+                                simulated_marker_97express_fromUBCO = gMap.addMarker(new MarkerOptions()
+                                .position(simulated_positions_97express.get(simulated_positions_97express.size()-1
+                                        ))
+                                .visible(visible)
+                                .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("buslocation",148,187))));
                             } else {
 
-                                simulated_marker.setPosition(simulated_positions.get(n));
+                                simulated_marker_97express_toUBCO.setPosition(simulated_positions_97express.get(n));
+                                simulated_marker_97express_fromUBCO.setPosition(simulated_positions_97express.get(simulated_positions_97express.size()- 1 - n));
                                 n++;
                             }
-                            if(n == simulated_positions.size()){
+                            if(n == simulated_positions_97express.size()){
                                 n = 1;
+                            }
+                            if (simulated_marker_8_toUBCO == null) {
+                                simulated_marker_8_toUBCO = gMap.addMarker(new MarkerOptions()
+                                        .position(simulated_positions_8.get(0))
+                                        .title("Position")
+                                        .visible(visible)
+                                        .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("buslocation",148,187)))
+                                );
+                                simulated_marker_8_fromUBCO = gMap.addMarker(new MarkerOptions()
+                                .position(simulated_positions_8.get(simulated_positions_8.size()- 1 - n))
+                                .visible(visible)
+                                .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("buslocation",148,187))));
+                            } else {
+
+                                simulated_marker_8_toUBCO.setPosition(simulated_positions_8.get(m));
+                                simulated_marker_8_fromUBCO.setPosition(simulated_positions_8.get(simulated_positions_8.size()- 1 - m));
+                                m++;
+                            }
+                            if(m == simulated_positions_8.size()){
+                                m = 1;
                             }
                         }
                     }
@@ -296,21 +342,73 @@ public class MainScreen extends Activity implements
                     Toast.makeText(MainScreen.this, String.valueOf(position), Toast.LENGTH_SHORT).show();
                 }
             }
-            if(position != 0){
-                Polyline polyline_97express = getRoutePolygon(position,true);
+            if(position == 0){
+                express_97 = getRoutePolygon("97express.txt",false);
+                university_8 = getRoutePolygon("8University.txt",false);
             }
-            if(position == 1 || position == 2 ){
-
-                if(simulated_marker != null){
-                    simulated_marker.setVisible(true);
+            if(position == 1 ){
+                //express_97.setVisible(true);
+                if(simulated_marker_97express_fromUBCO != null){
+                  //  simulated_marker_97express_fromUBCO.setVisible(true);
                 }
 
-            }else{
-                if(simulated_marker != null) {
-                    simulated_marker.setVisible(false);
-                }
-            }
+            }else {
+                if (simulated_marker_97express_fromUBCO != null) {
+                  //  simulated_marker_97express_fromUBCO.setVisible(false);
 
+                }
+                //express_97.setVisible(false);
+            }
+                if(position == 2 ){
+                  //  express_97.setVisible(true);
+                    if(simulated_marker_97express_toUBCO != null){
+                       // simulated_marker_97express_toUBCO.setVisible(true);
+                    }
+
+                }else {
+                    if (simulated_marker_97express_toUBCO != null) {
+                        //simulated_marker_97express_toUBCO.setVisible(false);
+
+                    }
+                  //  express_97.setVisible(false);
+                }
+                if(position == 3 ){
+                   // university_8.setVisible(true);
+                    if(simulated_marker_8_toUBCO != null){
+                       // simulated_marker_8_toUBCO.setVisible(true);
+                    }
+
+                }else{
+                    if(simulated_marker_8_toUBCO != null) {
+                       // simulated_marker_8_toUBCO.setVisible(false);
+
+                    }
+                //university_8.setVisible(false);
+                }
+                if(position == 4 ){
+                   // university_8.setVisible(true);
+                    if(simulated_marker_8_fromUBCO != null){
+                      //  simulated_marker_8_fromUBCO.setVisible(true);
+                    }
+
+                }else{
+                    if(simulated_marker_8_fromUBCO != null) {
+                      //  simulated_marker_8_fromUBCO.setVisible(false);
+
+                    }
+                 //   university_8.setVisible(false);
+                }
+                if(position == 1 || position == 2){
+                    express_97.setVisible(true);
+                    university_8.setVisible(false);
+                }else if(position == 3 || position == 4){
+                    express_97.setVisible(false);
+                    university_8.setVisible(true);
+
+                }else{
+                    express_97.setVisible(false);
+                    university_8.setVisible(false);
+                }
 
             }
 
@@ -363,7 +461,7 @@ public class MainScreen extends Activity implements
                }
                Log.i("EchoResponce", next_bus);
                 TextView Scheduled_Time = (TextView) findViewById(R.id.Scheduled_Time);
-               //Scheduled_Time.setText(local_time);
+               Scheduled_Time.setText(local_time);
                //Toast.makeText(getApplicationContext(), next_bus, Toast.LENGTH_SHORT).show();
 
 
@@ -511,12 +609,12 @@ public class MainScreen extends Activity implements
         return resizedBitmap;
     }
 
-    public Polyline getRoutePolygon(int route_id, Boolean display ){
+    public Polyline getRoutePolygon(String route_name, Boolean display ){
 
         ArrayList<LatLng> polyline_points = new ArrayList<LatLng>();
         Polyline polyline;
         try{
-            InputStream csvStream = getAssets().open("97express.txt");
+            InputStream csvStream = getAssets().open(route_name);
             InputStreamReader csvStreamReader = new InputStreamReader(csvStream);
             CSVReader csvReader = new CSVReader(csvStreamReader);
             csvReader.readNext();

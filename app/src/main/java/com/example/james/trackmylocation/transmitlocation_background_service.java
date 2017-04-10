@@ -68,8 +68,9 @@ public class transmitlocation_background_service extends Service implements  Goo
     location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
         locationListener = new LocationListener() {
             @Override
-            public void onLocationChanged(Location location) {
-            //sendlocation();
+            public void onLocationChanged(Location location_1) {
+            location = location_1;
+                //sendlocation();
             }
         };
 
