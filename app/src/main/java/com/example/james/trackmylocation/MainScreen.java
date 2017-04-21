@@ -134,7 +134,7 @@ public class MainScreen extends Activity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-       // getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_main_screen);
         activity = this;
 
@@ -192,67 +192,7 @@ public class MainScreen extends Activity implements
         }
 
 
-         timer = new Timer();
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d("Timer","TimerRun");
-                        if(gMap != null) {
-                            if (simulated_marker_97express_toUBCO == null) {
-                                simulated_marker_97express_toUBCO = gMap.addMarker(new MarkerOptions()
-                                        .position(simulated_positions_97express.get(0))
-                                        .title("Position")
-                                        .visible(visible)
-                                        .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("buslocation",148,187)))
-                                );
-                                simulated_marker_97express_fromUBCO = gMap.addMarker(new MarkerOptions()
-                                .position(simulated_positions_97express.get(simulated_positions_97express.size()-1
-                                        ))
-                                .visible(visible)
-                                .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("buslocation",148,187))));
-                            } else {
-
-                                simulated_marker_97express_toUBCO.setPosition(simulated_positions_97express.get(n));
-                                simulated_marker_97express_fromUBCO.setPosition(simulated_positions_97express.get(simulated_positions_97express.size()- 1 - n));
-                                n++;
-                            }
-                            if(n == simulated_positions_97express.size()){
-                                n = 1;
-                            }
-                            if (simulated_marker_8_toUBCO == null) {
-                                simulated_marker_8_toUBCO = gMap.addMarker(new MarkerOptions()
-                                        .position(simulated_positions_8.get(0))
-                                        .title("Position")
-                                        .visible(visible)
-                                        .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("buslocation",148,187)))
-                                );
-                                simulated_marker_8_fromUBCO = gMap.addMarker(new MarkerOptions()
-                                .position(simulated_positions_8.get(simulated_positions_8.size()- 1 - n))
-                                .visible(visible)
-                                .icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("buslocation",148,187))));
-                            } else {
-
-                                simulated_marker_8_toUBCO.setPosition(simulated_positions_8.get(m));
-                                simulated_marker_8_fromUBCO.setPosition(simulated_positions_8.get(simulated_positions_8.size()- 1 - m));
-                                m++;
-                            }
-                            if(m == simulated_positions_8.size()){
-                                m = 1;
-                            }
-                        }
-                    }
-                });
-                                }
-            };
-        timer.schedule(timerTask,1000,1000);
-    };
-
-
-
-
+    }
 
     @Override
     protected void onStart() {
@@ -265,10 +205,7 @@ public class MainScreen extends Activity implements
     protected void onResume() {
         super.onResume();
         Log.i("Test", "onResume: is running ");
-
-
     }
-
 
     @Override
     protected void onDestroy(){
@@ -291,7 +228,6 @@ public class MainScreen extends Activity implements
         gMap.setOnPoiClickListener(this);
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(49.882114,-119.477829),10.0f));
     }
-
 
     private class Asyncgetiid extends AsyncTask<String,String,String>{
 
@@ -334,103 +270,46 @@ public class MainScreen extends Activity implements
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-              //  Toast.makeText(MainScreen.this, String.valueOf(id), Toast.LENGTH_SHORT).show();
+                //  Toast.makeText(MainScreen.this, String.valueOf(id), Toast.LENGTH_SHORT).show();
 
-            if(mBound) {
-                if (backgroundservice.LocationIsNotNull()) {
-                    Find_Closest_Stop(position);
-                    Toast.makeText(MainScreen.this, String.valueOf(position), Toast.LENGTH_SHORT).show();
+                if (mBound) {
+                    if (backgroundservice.LocationIsNotNull()) {
+                        Find_Closest_Stop(position);
+                        Toast.makeText(MainScreen.this, String.valueOf(position), Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
-            if(position == 0){
-                express_97 = getRoutePolygon("97express.txt",false);
-                university_8 = getRoutePolygon("8University.txt",false);
-            }
-            if(position == 1 ){
-                //express_97.setVisible(true);
-                if(simulated_marker_97express_fromUBCO != null){
-                  //  simulated_marker_97express_fromUBCO.setVisible(true);
-                }
-
-            }else {
-                if (simulated_marker_97express_fromUBCO != null) {
-                  //  simulated_marker_97express_fromUBCO.setVisible(false);
-
-                }
-                //express_97.setVisible(false);
-            }
-                if(position == 2 ){
-                  //  express_97.setVisible(true);
-                    if(simulated_marker_97express_toUBCO != null){
-                       // simulated_marker_97express_toUBCO.setVisible(true);
+                if (position == 0) {
+                    if (express_97 == null) {
+                        express_97 = getRoutePolygon("97express.txt", false);
+                    }
+                    if (university_8 == null) {
+                        university_8 = getRoutePolygon("8University.txt", false);
                     }
 
-                }else {
-                    if (simulated_marker_97express_toUBCO != null) {
-                        //simulated_marker_97express_toUBCO.setVisible(false);
+                    university_8.setVisible(false);
+                    express_97.setVisible(false);
 
-                    }
-                  //  express_97.setVisible(false);
                 }
-                if(position == 3 ){
-                   // university_8.setVisible(true);
-                    if(simulated_marker_8_toUBCO != null){
-                       // simulated_marker_8_toUBCO.setVisible(true);
-                    }
 
-                }else{
-                    if(simulated_marker_8_toUBCO != null) {
-                       // simulated_marker_8_toUBCO.setVisible(false);
-
-                    }
-                //university_8.setVisible(false);
-                }
-                if(position == 4 ){
-                   // university_8.setVisible(true);
-                    if(simulated_marker_8_fromUBCO != null){
-                      //  simulated_marker_8_fromUBCO.setVisible(true);
-                    }
-
-                }else{
-                    if(simulated_marker_8_fromUBCO != null) {
-                      //  simulated_marker_8_fromUBCO.setVisible(false);
-
-                    }
-                 //   university_8.setVisible(false);
-                }
-                if(position == 1 || position == 2){
+                if (position == 1 || position == 2) {
                     express_97.setVisible(true);
                     university_8.setVisible(false);
-                }else if(position == 3 || position == 4){
+                } else if (position == 3 || position == 4) {
                     express_97.setVisible(false);
                     university_8.setVisible(true);
-
-                }else{
-                    express_97.setVisible(false);
-                    university_8.setVisible(false);
                 }
-
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
             }
         });
-    }
+        }
+
     @Override
     public void onPoiClick(PointOfInterest poi){
-        // Toast.makeText(getApplicationContext(), "Clicked: " +
-       //                 poi.name + "\nPlace ID:" + poi.placeId +
-       //                 "\nLatitude:" + poi.latLng.latitude +
-       //                 " Longitude:" + poi.latLng.longitude,
-       //         Toast.LENGTH_LONG).show();
-        String id = poi.placeId;
+         String id = poi.placeId;
         Log.i("Poi Click", id);
-        //FetchStaticSchedule(poi);
-
-
-
     }
 
    public void FetchStaticSchedule(final String stop) {

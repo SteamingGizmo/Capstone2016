@@ -54,8 +54,6 @@ public class transmitlocation_background_service extends Service implements  Goo
 
     @Override
     public void onCreate(){
-        Log.i("Background Service","Ran");
-        Toast.makeText(this,"Service Running",Toast.LENGTH_SHORT).show();
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
